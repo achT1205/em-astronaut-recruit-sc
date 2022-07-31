@@ -117,7 +117,7 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
         if(bytes(uri).length > 0 )
             return string(abi.encodePacked(uri));
         string memory base = _baseURI();
-        return bytes(base).length != 0 ? string(abi.encodePacked(base, _toString(recuitToLevel[_tokenId]), "/", _toString(_tokenId), ".json")) : '';
+        return bytes(base).length != 0 ? string(abi.encodePacked(base, "level", _toString(recuitToLevel[_tokenId]), "/", _toString(_tokenId), ".json")) : '';
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
