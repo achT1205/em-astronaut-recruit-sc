@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
-
+import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
@@ -26,16 +26,12 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
     uint256 public levelUpprice = 0.0069 ether;
     // vip mintin period
     uint256 public vipMintingPeriod = 86400 ; // 24h
-    // vip sale count
-    uint256 public vipSaleCount;
-    // max vip sale 
-    uint256 public maxMipSale = 1000;
     // vip sale start time
     uint256 public vipSaleStartTime = 1658508635;
     // lieutenant level
-    uint8 public lieutenantLevel = 3;
+    uint8 public lieutenantLevel = 4;
     //max level
-    uint8 public maxLevel = 5;
+    uint8 public maxLevel = 4;
     // systemSigner
     address private systemSigner;
     // reveal state
@@ -65,17 +61,27 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
         _;
     }
 
+    modifier canFreeMint(bytes32 _msgHash, uint256 at, uint8 level) {
+        require(keccak256(abi.encodePacked(msg.sender, at, level)) == _msgHash, "INVALID_MESSAGE");
+        _;
+    }
+
+    modifier canLevelUp(bytes32 _msgHash, uint256 at, uint8 level) {
+        require(keccak256(abi.encodePacked(msg.sender, at, level)) == _msgHash, "INVALID_MESSAGE");
+        _;
+    }
+
     /* ========== CONSTRUCTOR ========== */
     constructor(string memory name_, string memory symbol_, string memory baseUri_, string memory notRevealedUri_, address siger_)
      ERC721A(name_, symbol_) {
         baseURI = baseUri_;
         notRevealedURI = notRevealedUri_;
         systemSigner = siger_;
-        //comment for tets
-        // _safeMint(owner(), 1050);
-        // for (uint256 index = 1; index < 1051; index++) {
-        //     recuitToLevel[index] = 1;
-        // }
+       // comment for tets
+        _safeMint(owner(), 1050);
+        for (uint256 index = 1; index < 1051; index++) {
+            recuitToLevel[index] = 1;
+        }
     }
 
     /* ========== VIEWS ========== */
@@ -134,9 +140,8 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
     whenNotPaused
     nonReentrant
     onlyValidSignature(_msgHash, _signature, systemSigner)
-    hashMessage(_msgHash, at)
+    canFreeMint(_msgHash, at, 1)
     {
-        require((block.timestamp - vipSaleStartTime > vipMintingPeriod) || vipSaleCount == maxMipSale, "VIP SALE PERIOD");
         require(msg.sender != address(0), "0 IS NOT A CORRECT ADDRESS");
         require(!hasFreeMinted[msg.sender], "QUANTITY_EXCEEDED");
         uint256 id = _nextTokenId();
@@ -155,7 +160,7 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
         require(msg.sender != address(0), "0 IS NOT A CORRECT ADDRESS");
         require(_quatity > 0,  "0 IS NOT VALID QUANTIIY");
         require(msg.value >= price * _quatity, "NOT_ENOUG_FUND");
-        require((block.timestamp - vipSaleStartTime > vipMintingPeriod) || vipSaleCount == maxMipSale, "VIP SALE PERIOD");
+        require((block.timestamp - vipSaleStartTime ) > vipMintingPeriod,"VIP SALE PERIOD");
         _updateState(_quatity);
     }
 
@@ -172,22 +177,20 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
         require(_quatity > 0,  "0 IS NOT VALID QUANTIIY");
         require(msg.value >= price * _quatity, "NOT_ENOUG_FUND");
         require(block.timestamp - vipSaleStartTime < vipMintingPeriod, "VIP SALE PERIOD OVER");
-        require(vipSaleCount + _quatity <= maxMipSale, "VIP_SALE_QUANTITY_EXCEEDED");
-        vipSaleCount += _quatity;
         _updateState(_quatity);
     }
 
-    function levelUp(bytes32 _msgHash, bytes memory _signature, uint256 _at, uint256 _tokenId)
+    function levelUp(bytes32 _msgHash, bytes memory _signature, uint256 _at, uint256 _tokenId, uint8 level)
     external
     whenNotPaused
     nonReentrant
     onlyValidSignature(_msgHash, _signature, systemSigner)
-    hashMessage(_msgHash, _at)
+    canLevelUp(_msgHash, _at, level)
     {
         if(!_exists(_tokenId)) revert URIQueryForNonexistentToken();
         require(msg.sender == ownerOf(_tokenId), "NOT OWNER");
         require(recuitToLevel[_tokenId] < maxLevel, "REACHED_MAXIMUM_LEVEL");
-        recuitToLevel[_tokenId]++;
+        recuitToLevel[_tokenId] += level;
     }
 
     function payForlevelUp(uint256 _tokenId, uint8 _level)
@@ -265,10 +268,6 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
 
     function setVipSaleStartTime(uint256 _vipSaleStartTime) public onlyOwner nonReentrant {
         vipSaleStartTime = _vipSaleStartTime;
-    }
-
-    function setMaxMipSale(uint256 _maxMipSale) public onlyOwner nonReentrant {
-        maxMipSale = _maxMipSale;
     }
 
     function setVipMintingPeriod(uint256 _period) public onlyOwner nonReentrant {

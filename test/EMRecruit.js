@@ -46,7 +46,7 @@ describe("EMRecruit", function () {
 
     before(async () => {
         [owner, addr1, addr2, addr3, addr4, addr5, addr6, addr7, addr8, addr9, addr10, ...addrs] = await ethers.getSigners();
-        VIP_MINTING_PERIOD = 100;
+        VIP_MINTING_PERIOD = 200;
         VIP_MINTING_START_TIME = Math.floor(Date.now() / 1000);
     });
 
@@ -74,16 +74,15 @@ describe("EMRecruit", function () {
     });
 
     describe("VIP period sale", async function () {
-        it("Should not free mint during vip period", async function () {
+        it("Should free mint during vip period", async function () {
             const now = Math.floor(Date.now() / 1000);
             let messageHash = ethers.utils.solidityKeccak256(
-                ["address", "uint256"],
-                [`${addr1.address.toLowerCase()}`, now]
+                ["address", "uint256", "uint8"],
+                [`${addr1.address.toLowerCase()}`, now, 1]
             );
             let messageHashBinary = ethers.utils.arrayify(messageHash);
             let signature = await owner.signMessage(messageHashBinary);
-            const tx = recruit.connect(addr1).safeMint(messageHashBinary, signature, now);
-            await expect(tx).to.be.revertedWith("VIP SALE PERIOD");
+            await recruit.connect(addr1).safeMint(messageHashBinary, signature, now);
         });
 
         it("Should not buy during vip period", async function () {
@@ -115,17 +114,6 @@ describe("EMRecruit", function () {
             await expect(tx).to.be.revertedWith("INVALID_MESSAGE");
         });
 
-        it("Should not buy 1001", async function () {
-            const now = Math.floor(Date.now() / 1000);
-            let messageHash = ethers.utils.solidityKeccak256(
-                ["address", "uint256"],
-                [`${addr1.address.toLowerCase()}`, now]
-            );
-            let messageHashBinary = ethers.utils.arrayify(messageHash);
-            let signature = await owner.signMessage(messageHashBinary);
-            const tx = recruit.connect(addr1).vipSale(1001, messageHashBinary, signature, now, { value: ethers.utils.parseEther("6.9069") });
-            await expect(tx).to.be.revertedWith("VIP_SALE_QUANTITY_EXCEEDED");
-        });
 
         it("Should not buy (NOT_ENOUG_FUND)", async function () {
             const now = Math.floor(Date.now() / 1000);
@@ -161,19 +149,20 @@ describe("EMRecruit", function () {
             await recruit.connect(addr2).vipSale(999, messageHashBinary, signature, now, { value: ethers.utils.parseEther("6.8931") });
         });
 
-        it("Should free mint during vip period (cause VIP_SALE_QUANTITY_EXCEEDED)", async function () {
+        it("Should free mint during vip period (cause was white listed)", async function () {
             const now = Math.floor(Date.now() / 1000);
             let messageHash = ethers.utils.solidityKeccak256(
-                ["address", "uint256"],
-                [`${addr1.address.toLowerCase()}`, now]
+                ["address", "uint256", "uint8"],
+                [`${addr10.address.toLowerCase()}`, now, 1]
             );
             let messageHashBinary = ethers.utils.arrayify(messageHash);
             let signature = await owner.signMessage(messageHashBinary);
-            await recruit.connect(addr1).safeMint(messageHashBinary, signature, now);
+            await recruit.connect(addr10).safeMint(messageHashBinary, signature, now);
         });
 
-        it("Should buy during vip period (cause VIP_SALE_QUANTITY_EXCEEDED)", async function () {
-            await recruit.connect(addr1).buyRecuit(1, { value: ethers.utils.parseEther("0.0069") });
+        it("buy during vip period should not be possible", async function () {
+            const tx = recruit.connect(addr1).buyRecuit(1, { value: ethers.utils.parseEther("0.0069") });
+            await expect(tx).to.be.revertedWith("VIP SALE PERIOD");
         });
     })
 
@@ -220,8 +209,8 @@ describe("EMRecruit", function () {
         it("Mint should not be possible (invalid signature error)", async () => {
             const now = Math.floor(Date.now() / 1000);
             let messageHash = ethers.utils.solidityKeccak256(
-                ["address", "uint256"],
-                [`${addr1.address.toLowerCase()}`, now]
+                ["address", "uint256", "uint8"],
+                [`${addr1.address.toLowerCase()}`, now, 1]
             );
             let messageHashBinary = ethers.utils.arrayify(messageHash);
             let signature = await addr1.signMessage(messageHashBinary);
@@ -232,8 +221,8 @@ describe("EMRecruit", function () {
         it("Mint should not be possible (invalid message error)", async () => {
             const now = Math.floor(Date.now() / 1000);
             let messageHash = ethers.utils.solidityKeccak256(
-                ["address", "uint256"],
-                [`${addr2.address.toLowerCase()}`, now]
+                ["address", "uint256", "uint8"],
+                [`${addr2.address.toLowerCase()}`, now, 1]
             );
             let messageHashBinary = ethers.utils.arrayify(messageHash);
             let signature = await owner.signMessage(messageHashBinary);
@@ -241,17 +230,31 @@ describe("EMRecruit", function () {
             await expect(tx).to.be.revertedWith("INVALID_MESSAGE");
         });
 
+
+        it("Mint should not be possible (invalid message error)", async () => {
+            const now = Math.floor(Date.now() / 1000);
+            let messageHash = ethers.utils.solidityKeccak256(
+                ["address", "uint256", "uint8"],
+                [`${addr1.address.toLowerCase()}`, now, 2]
+            );
+            let messageHashBinary = ethers.utils.arrayify(messageHash);
+            let signature = await owner.signMessage(messageHashBinary);
+            const tx = recruit.connect(addr1).safeMint(messageHashBinary, signature, now);
+            await expect(tx).to.be.revertedWith("INVALID_MESSAGE");
+        });
+
+
         it("Should buy recruit for addr1 (after vip period)", async function () {
             await mineBlocks(300)
             await recruit.connect(addr1).buyRecuit(1, { value: ethers.utils.parseEther("0.0069") });
         });
 
 
-        it("Should mint 1 recruit for addr1 (free mint after vip period)", async function () {
+        it("Should mint 1 recruit for addr1", async function () {
             const now = Math.floor(Date.now() / 1000);
             let messageHash = ethers.utils.solidityKeccak256(
-                ["address", "uint256"],
-                [`${addr1.address.toLowerCase()}`, now]
+                ["address", "uint256", "uint8"],
+                [`${addr1.address.toLowerCase()}`, now, 1]
 
             );
             let messageHashBinary = ethers.utils.arrayify(messageHash);
@@ -268,8 +271,8 @@ describe("EMRecruit", function () {
         it("Mint should not be possible (QUANTITY_EXCEEDED error)", async () => {
             const now = Math.floor(Date.now() / 1000);
             let messageHash = ethers.utils.solidityKeccak256(
-                ["address", "uint256"],
-                [`${addr1.address.toLowerCase()}`, now]
+                ["address", "uint256", "uint8"],
+                [`${addr1.address.toLowerCase()}`, now, 1]
             );
             let messageHashBinary = ethers.utils.arrayify(messageHash);
             let signature = await owner.signMessage(messageHashBinary);
@@ -283,7 +286,6 @@ describe("EMRecruit", function () {
         it("should not mint by owner (not the owner error)", async function () {
             const tx = recruit.connect(addr1).safeMintByOwner(addr2.address, 3);
             await expect(tx).to.be.revertedWith('Ownable: caller is not the owner');
-
         });
 
         it("should not mint batch by owner (not the owner error)", async function () {
@@ -396,8 +398,8 @@ describe("EMRecruit", function () {
             const now = Math.floor(Date.now() / 1000);
             await recruit.connect(owner).pause();
             let messageHash = ethers.utils.solidityKeccak256(
-                ["address", "uint256"],
-                [`${addr1.address.toLowerCase()}`, now]
+                ["address", "uint256", "uint8"],
+                [`${addr1.address.toLowerCase()}`, now, 1]
             );
             let messageHashBinary = ethers.utils.arrayify(messageHash);
             let signature = await owner.signMessage(messageHashBinary);
@@ -410,8 +412,8 @@ describe("EMRecruit", function () {
 
             await recruit.connect(owner).unpause();
             let messageHash = ethers.utils.solidityKeccak256(
-                ["address", "uint256"],
-                [`${addr6.address.toLowerCase()}`, now]
+                ["address", "uint256", "uint8"],
+                [`${addr6.address.toLowerCase()}`, now, 1]
             );
             let messageHashBinary = ethers.utils.arrayify(messageHash);
             let signature = await owner.signMessage(messageHashBinary);
@@ -445,8 +447,8 @@ describe("EMRecruit", function () {
             const now = Math.floor(Date.now() / 1000);
 
             let messageHash = ethers.utils.solidityKeccak256(
-                ["address", "uint256"],
-                [`${addr7.address.toLowerCase()}`, now]
+                ["address", "uint256", "uint8"],
+                [`${addr7.address.toLowerCase()}`, now, 1]
             );
             let messageHashBinary = ethers.utils.arrayify(messageHash);
             let signature = await addr9.signMessage(messageHashBinary);
@@ -457,8 +459,8 @@ describe("EMRecruit", function () {
         it("Should mint 1 recruit for addr7", async function () {
             const now = Math.floor(Date.now() / 1000);
             let messageHash = ethers.utils.solidityKeccak256(
-                ["address", "uint256"],
-                [`${addr7.address.toLowerCase()}`, now]
+                ["address", "uint256", "uint8"],
+                [`${addr7.address.toLowerCase()}`, now, 1]
             );
             let messageHashBinary = ethers.utils.arrayify(messageHash);
             let signature = await addr10.signMessage(messageHashBinary);
@@ -482,14 +484,13 @@ describe("EMRecruit", function () {
 
             const now = Math.floor(Date.now() / 1000);
             let messageHash = ethers.utils.solidityKeccak256(
-                ["address", "uint256"],
-                [`${addr2.address.toLowerCase()}`, now]
+                ["address", "uint256", "uint8"],
+                [`${addr2.address.toLowerCase()}`, now, 2]
             );
             let messageHashBinary = ethers.utils.arrayify(messageHash);
             let signature = await addr10.signMessage(messageHashBinary);
 
-            await recruit.connect(addr2).levelUp(messageHashBinary, signature, now, 1053);
-            await recruit.connect(addr2).levelUp(messageHashBinary, signature, now, 1053);
+            await recruit.connect(addr2).levelUp(messageHashBinary, signature, now, 1053, 2);
         });
 
         it("Should transfer 1053", async function () {
@@ -511,9 +512,28 @@ describe("EMRecruit", function () {
             console.log("addr6 recruits: ==> :", recruits)
         });
 
-        it("Should transfer 1067", async function () {
+        it("transfer of 1067 should not be possible", async function () {
+            const tx = recruit.connect(addr6).transferFrom(addr6.address, addr1.address, 1067)
+            await expect(tx).to.be.revertedWith("NEED TO LEVELUP TO LIEUTENANT");
+        });
+
+        it("level up token 1053 2 time to become lieutenant", async function () {
+
+            const now = Math.floor(Date.now() / 1000);
+            let messageHash = ethers.utils.solidityKeccak256(
+                ["address", "uint256", "uint8"],
+                [`${addr6.address.toLowerCase()}`, now, 2]
+            );
+            let messageHashBinary = ethers.utils.arrayify(messageHash);
+            let signature = await addr10.signMessage(messageHashBinary);
+
+            await recruit.connect(addr6).levelUp(messageHashBinary, signature, now, 1067, 2);
+        });
+
+        it("should transfer 1067", async function () {
             await recruit.connect(addr6).transferFrom(addr6.address, addr1.address, 1067)
         });
+
 
         it("Should get recruit of addr6", async function () {
             const recruits = await recruit.tokensOfOwner(addr6.address);
