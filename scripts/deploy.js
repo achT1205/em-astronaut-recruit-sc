@@ -19,7 +19,7 @@ main = async () => {
   await recruit.deployed();
   await recruit.connect(owner).setRevealed(true)
   await recruit.connect(owner).setVipSaleStartTime(Math.floor(Date.now() / 1000))
-  await recruit.connect(owner).setMaximumLevel(5)
+  await recruit.connect(owner).setMaximumLevel(4)
   await recruit.connect(owner).setOperator(owner.address, true)
 
   console.log("");
