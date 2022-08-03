@@ -77,11 +77,12 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
         baseURI = baseUri_;
         notRevealedURI = notRevealedUri_;
         systemSigner = siger_;
-       // comment for tets
-        _safeMint(owner(), 1050);
-        for (uint256 index = 1; index < 1051; index++) {
-            recuitToLevel[index] = 1;
-        }
+       //comment for tets
+
+        // _safeMint(owner(), 1050);
+        // for (uint256 index = 1; index < 1051; index++) {
+        //     recuitToLevel[index] = 1;
+        // }
     }
 
     /* ========== VIEWS ========== */
@@ -180,17 +181,17 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
         _updateState(_quatity);
     }
 
-    function levelUp(bytes32 _msgHash, bytes memory _signature, uint256 _at, uint256 _tokenId, uint8 level)
+    function levelUp(bytes32 _msgHash, bytes memory _signature, uint256 _at, uint256 _tokenId, uint8 _level)
     external
     whenNotPaused
     nonReentrant
     onlyValidSignature(_msgHash, _signature, systemSigner)
-    canLevelUp(_msgHash, _at, level)
+    canLevelUp(_msgHash, _at, _level)
     {
         if(!_exists(_tokenId)) revert URIQueryForNonexistentToken();
         require(msg.sender == ownerOf(_tokenId), "NOT OWNER");
-        require(recuitToLevel[_tokenId] < maxLevel, "REACHED_MAXIMUM_LEVEL");
-        recuitToLevel[_tokenId] += level;
+        require(recuitToLevel[_tokenId] + _level <= maxLevel, "REACHED_MAXIMUM_LEVEL");
+        recuitToLevel[_tokenId] += _level;
     }
 
     function payForlevelUp(uint256 _tokenId, uint8 _level)
