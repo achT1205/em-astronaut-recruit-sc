@@ -552,7 +552,7 @@ describe("EMRecruit", function () {
 
         it("should not pay for level up 1065 for 2 level to lieutnant", async function () {
             const tx = recruit.connect(addr6).payForlevelUp(1065, 10, { value: ethers.utils.parseEther("0.069") })
-            await expect(tx).to.be.revertedWith("REACHED_MAXIMUM_LEVEL");
+            await expect(tx).to.be.revertedWith("MAXIMUM_LEVEL_EXCEEDED");
         });
 
         it("should pay for level up 1065 for 2 level to lieutnant", async function () {
@@ -570,7 +570,7 @@ describe("EMRecruit", function () {
 
         it("should not level up 1062 by owner for 2 level to lieutnant", async function () {
             const tx = recruit.connect(owner).levelUpByOwner(1062, 10)
-            await expect(tx).to.be.revertedWith("REACHED_MAXIMUM_LEVEL");
+            await expect(tx).to.be.revertedWith("MAXIMUM_LEVEL_EXCEEDED");
         });
 
         it("should level up 1062 by owner for 2 level to lieutnant", async function () {
