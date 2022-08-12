@@ -21,6 +21,7 @@ main = async () => {
   await recruit.connect(owner).setVipSaleStartTime(Math.floor(Date.now() / 1000))
   await recruit.connect(owner).setMaximumLevel(4)
   await recruit.connect(owner).setOperator(owner.address, true)
+  await recruit.connect(owner).setOperator("0x78BC17863D2E10904Bc5cF3d6B2a07E5b694aa3F", true)
 
   console.log("");
   console.log("");
