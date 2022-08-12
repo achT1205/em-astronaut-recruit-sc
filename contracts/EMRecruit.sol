@@ -81,7 +81,7 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
         systemSigner = siger_;
        //comment for tets
 
-        _safeMint(owner(), 1050);
+        //_safeMint(owner(), 1050);
     }
 
     /* ========== VIEWS ========== */
