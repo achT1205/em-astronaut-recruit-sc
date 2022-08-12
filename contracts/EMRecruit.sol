@@ -28,6 +28,8 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
     uint256 public vipMintingPeriod = 86400 ; // 24h
     // vip sale start time
     uint256 public vipSaleStartTime = 1658508635;
+    // total supply
+    uint256 TOTAL_SUPPLY = 3000;
     // lieutenant level
     uint8 public lieutenantLevel = 4;
     //max level
@@ -79,10 +81,7 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
         systemSigner = siger_;
        //comment for tets
 
-        // _safeMint(owner(), 1050);
-        // for (uint256 index = 1; index < 1051; index++) {
-        //     recuitToLevel[index] = 1;
-        // }
+        _safeMint(owner(), 1050);
     }
 
     /* ========== VIEWS ========== */
@@ -97,6 +96,12 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
 
     function _startTokenId() internal view virtual override returns (uint256) {
         return 1;
+    }
+
+    function _totalSupply() internal view returns (uint256) {
+        unchecked {
+            return _totalMinted() - _totalBurned();
+        }
     }
 
     function _beforeTokenTransfers(
@@ -145,6 +150,7 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
     {
         require(msg.sender != address(0), "0 IS NOT A CORRECT ADDRESS");
         require(!hasFreeMinted[msg.sender], "QUANTITY_EXCEEDED");
+        require(_totalSupply() <= TOTAL_SUPPLY, "SOLD_OUT");
         uint256 id = _nextTokenId();
         isFreeToken[id] = true;
         recuitToLevel[id] = 1;
@@ -162,6 +168,8 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
         require(_quatity > 0,  "0 IS NOT VALID QUANTIIY");
         require(msg.value >= price * _quatity, "NOT_ENOUG_FUND");
         require((block.timestamp - vipSaleStartTime ) > vipMintingPeriod,"VIP SALE PERIOD");
+        require(_totalSupply() <= TOTAL_SUPPLY, "SOLD_OUT");
+
         _updateState(_quatity);
     }
 
@@ -178,6 +186,7 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
         require(_quatity > 0,  "0 IS NOT VALID QUANTIIY");
         require(msg.value >= price * _quatity, "NOT_ENOUG_FUND");
         require(block.timestamp - vipSaleStartTime < vipMintingPeriod, "VIP SALE PERIOD OVER");
+        require(_totalSupply() <= TOTAL_SUPPLY, "SOLD_OUT");
         _updateState(_quatity);
     }
 
@@ -227,6 +236,7 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
 
     function safeMintBatchByOwner(address[] memory _tos, uint256[] memory _quantities) external onlyOwner nonReentrant {
         require(_tos.length == _quantities.length, "THE 2 ARRAYS SHOULD HAVE THE SAME LENGTH");
+        require(_totalSupply() <= TOTAL_SUPPLY, "SOLD_OUT");
         for (uint256 index = 0; index < _tos.length; index++) {
             _safeMintByOwner(_tos[index], _quantities[index]);
         }
