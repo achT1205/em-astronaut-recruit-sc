@@ -556,7 +556,7 @@ describe("EMRecruit", function () {
         });
 
         it("should pay for level up 1065 for 2 level to lieutnant", async function () {
-            await recruit.connect(addr6).payForlevelUp(1065, 2, { value: ethers.utils.parseEther("0.0138") })
+            await recruit.connect(addr6).payForlevelUp(1065, 3, { value: ethers.utils.parseEther("0.207") })
         });
 
         it("Should transfer 1065", async function () {

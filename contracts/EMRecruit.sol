@@ -81,7 +81,10 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
         systemSigner = siger_;
        //comment for tets
 
-        //_safeMint(owner(), 1050);
+        // _safeMint(owner(), 1050);
+        // for (uint256 index = 1; index < 1051; index++) {
+        //     recuitToLevel[index] = maxLevel;
+        // }
     }
 
     /* ========== VIEWS ========== */
@@ -115,7 +118,7 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
             TokenOwnership memory ownership;
             ownership = _ownershipOf(tokenId);
             require(!ownership.burned, 'THIS TOKEN WAS BURNED');
-            require(recuitToLevel[tokenId] >= lieutenantLevel, 'NEED TO LEVELUP TO LIEUTENANT');
+            require(recuitToLevel[tokenId] == lieutenantLevel, 'NEED TO LEVELUP TO LIEUTENANT');
         }
     }
 
@@ -199,8 +202,9 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
     {
         if(!_exists(_tokenId)) revert URIQueryForNonexistentToken();
         require(msg.sender == ownerOf(_tokenId), "NOT OWNER");
-        require((recuitToLevel[_tokenId] + 1) <= maxLevel, "MAXIMUM_LEVEL_EXCEEDED");
-        recuitToLevel[_tokenId]++;
+        require(_level < maxLevel, "MAXIMUM_LEVEL_EXCEEDED");
+        require(recuitToLevel[_tokenId] < _level, "CAN_NOT_UPGRADE_TO_LOWER_LEVEL");
+        recuitToLevel[_tokenId] = _level;
     }
 
     function payForlevelUp(uint256 _tokenId, uint8 _level)
@@ -222,8 +226,9 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
     nonReentrant
     {
         require(_level > 0, "LEVEL_CAN_NOT_BE_0");
-        require((recuitToLevel[_tokenId] + _level) <= maxLevel, "MAXIMUM_LEVEL_EXCEEDED");
-        recuitToLevel[_tokenId] += _level;
+        require(_level < maxLevel, "MAXIMUM_LEVEL_EXCEEDED");
+        require(recuitToLevel[_tokenId] < _level, "CAN_NOT_UPGRADE_TO_LOWER_LEVEL");
+        recuitToLevel[_tokenId] = _level;
     }
 
     function safeMintByOwner(address _to, uint256 _quantity) external onlyOwner nonReentrant {
