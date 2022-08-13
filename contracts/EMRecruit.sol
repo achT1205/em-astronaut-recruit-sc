@@ -202,8 +202,8 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
     {
         if(!_exists(_tokenId)) revert URIQueryForNonexistentToken();
         require(msg.sender == ownerOf(_tokenId), "NOT OWNER");
-        require(_level < maxLevel, "MAXIMUM_LEVEL_EXCEEDED");
-        require(recuitToLevel[_tokenId] < _level, "CAN_NOT_UPGRADE_TO_LOWER_LEVEL");
+        require(_level <= maxLevel, "MAXIMUM_LEVEL_EXCEEDED");
+        require(recuitToLevel[_tokenId] == (_level -1), "CAN_ONLY_UPDRADE_ONE_LEVEL_AT_THE_TIME");
         recuitToLevel[_tokenId] = _level;
     }
 
