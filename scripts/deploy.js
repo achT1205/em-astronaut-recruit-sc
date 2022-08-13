@@ -11,7 +11,7 @@ main = async () => {
   recruit = await EMRecruit.deploy(
     "EMEMRecruit",
     "EMAST",
-    "ipfs://QmTMpAw6JfDmToeRmxd2YWpPk4zZ48SVCBXXb3onaxFrpG/",
+    "ipfs://QmaiWUo94cQKkVgvbeU1fiYXNQbHUUaiapVjfZTSWhhTBA/",
     "https://ipfs.io/ipfs/QmSMrCFPr4UiB9CFvUQ2hFjk9u4UBJSnQ99z9NccBcDr2x/noreveal.png",
     systemAddress
   );
@@ -42,7 +42,7 @@ main = async () => {
   const recruitcontent = `module.exports=[
     "EMEMRecruit",
     "EMAST",
-    "ipfs://QmTMpAw6JfDmToeRmxd2YWpPk4zZ48SVCBXXb3onaxFrpG/",
+    "ipfs://QmaiWUo94cQKkVgvbeU1fiYXNQbHUUaiapVjfZTSWhhTBA/",
     "https://ipfs.io/ipfs/QmSMrCFPr4UiB9CFvUQ2hFjk9u4UBJSnQ99z9NccBcDr2x/noreveal.png",
     "${systemAddress}"
   ];`;

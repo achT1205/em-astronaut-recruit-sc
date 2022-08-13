@@ -14,6 +14,6 @@ npx hardhat run scripts/deploy.js
 
 
 
-dev npx hardhat verify 0xDa7D80c208fb790ADF0C63bA295ae1cFbF534fc5 --constructor-args arguments/rinkeby-recruit.js --network rinkeby 
+dev verify 0x0B6dA04A3d86c2bC98170556f649d569A97053EE --constructor-args arguments/rinkeby-recruit.js --network rinkeby 
 
 test npx hardhat verify 0xD32d882CC17F35a4E620121bd30Bd35dc4478669 --constructor-args arguments/rinkeby-recruit.js --network rinkeby 

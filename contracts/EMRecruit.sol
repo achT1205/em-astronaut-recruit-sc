@@ -95,7 +95,7 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
     }
 
     function _startTokenId() internal view virtual override returns (uint256) {
-        return 1001;
+        return 1051;
     }
 
     function _totalSupply() internal view returns (uint256) {
