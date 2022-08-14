@@ -9,8 +9,8 @@ main = async () => {
   systemAddress = "0x5e1A111B28d10e5029B7b654410860B7A26e2437" //process.env.HARDHAT_NETWORK === "localhost" ? owner.address : "0x5e1A111B28d10e5029B7b654410860B7A26e2437";
 
   recruit = await EMRecruit.deploy(
-    "EMEMRecruit",
-    "EMAST",
+    "Astromust Recruit Collection",
+    "ARC",
     "ipfs://QmaiWUo94cQKkVgvbeU1fiYXNQbHUUaiapVjfZTSWhhTBA/",
     "https://ipfs.io/ipfs/QmSMrCFPr4UiB9CFvUQ2hFjk9u4UBJSnQ99z9NccBcDr2x/noreveal.png",
     systemAddress
@@ -40,8 +40,8 @@ main = async () => {
   /* start generate params file for contract verify */
 
   const recruitcontent = `module.exports=[
-    "EMEMRecruit",
-    "EMAST",
+    "Astromust Recruit Collection",
+    "ARC",
     "ipfs://QmaiWUo94cQKkVgvbeU1fiYXNQbHUUaiapVjfZTSWhhTBA/",
     "https://ipfs.io/ipfs/QmSMrCFPr4UiB9CFvUQ2hFjk9u4UBJSnQ99z9NccBcDr2x/noreveal.png",
     "${systemAddress}"

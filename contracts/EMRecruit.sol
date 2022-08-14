@@ -81,8 +81,8 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
         systemSigner = siger_;
        //comment for tets
 
-        // _safeMint(owner(), 1050);
-        // for (uint256 index = 1; index < 1051; index++) {
+        // _safeMint(owner(), 1150);
+        // for (uint256 index = 1; index < 1151; index++) {
         //     recuitToLevel[index] = maxLevel;
         // }
     }
@@ -98,7 +98,7 @@ contract EMRecruit is ERC721A, ERC721AQueryable, Ownable, Pausable, ReentrancyGu
     }
 
     function _startTokenId() internal view virtual override returns (uint256) {
-        return 1051;
+        return 1151;
     }
 
     function _totalSupply() internal view returns (uint256) {
