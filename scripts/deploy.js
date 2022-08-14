@@ -6,7 +6,7 @@ main = async () => {
 
   const EMRecruit = await ethers.getContractFactory("EMRecruit");
 
-  systemAddress = "0x5e1A111B28d10e5029B7b654410860B7A26e2437" //process.env.HARDHAT_NETWORK === "localhost" ? owner.address : "0x5e1A111B28d10e5029B7b654410860B7A26e2437";
+  systemAddress = "0x78BC17863D2E10904Bc5cF3d6B2a07E5b694aa3F" //process.env.HARDHAT_NETWORK === "localhost" ? owner.address : "0x78BC17863D2E10904Bc5cF3d6B2a07E5b694aa3F";
 
   recruit = await EMRecruit.deploy(
     "Astromust Recruit Collection",
@@ -22,6 +22,8 @@ main = async () => {
   await recruit.connect(owner).setMaximumLevel(4)
   await recruit.connect(owner).setOperator(owner.address, true)
   await recruit.connect(owner).setOperator("0x78BC17863D2E10904Bc5cF3d6B2a07E5b694aa3F", true)
+  await recruit.connect(owner).setOperator("0x86a4d8D9a597d948457140893D15D9E708EF14Fc", true)
+
 
   console.log("");
   console.log("");
